@@ -1,6 +1,7 @@
 import {redirect} from "next/navigation"
 import { db } from "@/lib/db";
 import { initialProfile } from "@/lib/initiale-profile";
+import {InitialModal} from "@/components/modals/initial-modal";
 
 const SetupPage = async() => {
 
@@ -16,9 +17,7 @@ const SetupPage = async() => {
         return redirect(`/company/${company.id}`);
     }
 
-    return ( 
-        <div>Create a company</div>
-     );
+    return <InitialModal/>
 }
  
 export default SetupPage;
