@@ -1,0 +1,103 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Profile {
+  id       String @id @default(uuid())
+  userId   String @unique
+  name     String
+  imageUrl String @db.Text
+  email    String @db.Text
+
+  createAt DateTime @default(now())
+  updateAt DateTime @updatedAt
+
+  company Company[]
+}
+
+model Company {
+
+  id        String @id @default(uuid())
+  name      String
+  address   String @db.Text
+  numberNif String @unique @db.Text
+  logo      String @db.Text
+  phone     String
+
+  invoices Invoice[]
+
+  // Relation entre company a un profile 
+  profileId String
+  profile   Profile @relation(fields: [profileId], references: [id])
+
+  @@index([profileId])
+}
+
+model Client {
+  // Champs spécifiques à un client
+  id       String @id @default(uuid())
+  lastName String
+  fistName String
+  email    String @unique
+  phone    String @unique
+
+  invoices Invoice[]
+
+  createAt DateTime @default(now())
+  updateAt DateTime @updatedAt
+}
+
+model Produit {
+  id        String @id @default(uuid())
+  libelle   String
+  unitPrice Float
+  quantity  Float
+
+  // Relation avec le client
+  invoiceId String
+  invoice   Invoice @relation(fields: [invoiceId], references: [id])
+
+  @@index([invoiceId])
+}
+
+enum Status {
+  SENDED
+  DRAFT
+  PAID
+}
+
+model Invoice {
+  id             String   @id @default(uuid())
+  numeroFacture  String
+  dateFacture    DateTime
+  montantHT      Float
+  tauxTVA        Float
+  montantTVA     Float
+  montantTTC     Float
+  labelQuantity  String
+  labelUnitPrice String
+
+  status Status @default(DRAFT)
+
+  //Relation du vendeur
+  company   Company @relation(fields: [companyId], references: [id])
+  companyId String
+
+  // Relation avec le client
+  client   Client @relation(fields: [clientId], references: [id])
+  clientId String
+
+  produits Produit[]
+
+  @@index([companyId])
+  @@index([clientId])
+  
+}
